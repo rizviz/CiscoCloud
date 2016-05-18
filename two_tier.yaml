@@ -1,22 +1,23 @@
-heat_template_version: 2013-05-23
+heat_template_version: 2014-10-16
 
-description: Simple template to deploy a 2 tier web application
+description: Simple template to deploy a custom Ubuntu Docker host image, connect to a Neutron network named "DevOps Lab", use a security group named "Allow All" and finally pull/run two docker containers.
 
 resources:
-  wordpress_app:
-    type: OS::Nova::Server
-    properties:
-      image: "Ubuntu 14.04 LTS"
-      flavor: Standard
-      networks:
-        - network: "DevOps Lab"
-      security_groups: ["Allow All"]
-
-  wordpress_db:
-    type: OS::Nova::Server
-    properties:
-      image: "Ubuntu 14.04 LTS"
-      flavor: Standard
-      networks:
-        - network: "DevOps Lab"
-      security_groups: ["Allow All"]
+ wordpress_app:
+  type: OS::Heat::ResourceGroup
+  properties:
+    count: 1
+    resource_def:
+      type: OS::Nova::Server
+      properties:
+        image: "ubuntu-docker"
+        flavor: Standard
+        networks:
+          - network: "DevOps Lab"
+        security_groups: ["Allow All"]
+        user_data_format: RAW
+        user_data: |
+         #cloud-config
+         runcmd:
+          - sudo docker run --name mysql -e MYSQL_ROOT_PASSWORD=MyPass123 -e MYSQL_DATABASE=wordpress -e MYSQL_USER=wordpress -e MYSQL_PASSWORD=MyPass123 -d mysql:latest
+          - sudo docker run --name wordpress --link mysql:mysql -p 8080:80 -d wordpress
