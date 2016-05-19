@@ -1,4 +1,4 @@
-# Courtesy of Bret Kugler , Bret.kugler@gdt.com
+# Courtesy of Brett Kugler , Brett.kugler@gdt.com
 Using Jenkins to deploy a heat template
 1. Create a Jenkins service following the instructions found here:
 Installing Jenkins - https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Red+Hat+distributions
