@@ -1,5 +1,6 @@
-# Courtesy of Brett Kugler , Brett.kugler@gdt.com
-Using Jenkins to deploy a heat template
+# Using Jenkins to deploy a heat template
+Courtesy of Brett Kugler , Brett.kugler@gdt.com
+
 1. Create a Jenkins service following the instructions found here:
 Installing Jenkins - https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Red+Hat+distributions
 
@@ -26,7 +27,7 @@ sudo yum install jenkins
 sudo service jenkins start
 sudo chkconfig jenkins on
 
-Tieing Jenkins to GitHub 
+## Tieing Jenkins to GitHub 
 1. Create a new job in Jenkins (Freestyle Project)
 2. Under Source Code Management select Git and paste the URL to your repository.
 3. Under Tiggers, select Poll SCM and enter '* * * * *' in the schedule box.
@@ -37,7 +38,7 @@ Tieing Jenkins to GitHub
 	nova list
 5. Note that the Heat template is in the GitHub repository
 
-Firing a Heat template from Jenkins using OpenStack CLI tools
+## Firing a Heat template from Jenkins using OpenStack CLI tools
 1. Log into your OpenStack instance and browse to Project -> Access & Security -> API Access and click
 	Download OpenStack RC File
 2. Copy the RC file to /var to match the path in the build script above (step 4)
