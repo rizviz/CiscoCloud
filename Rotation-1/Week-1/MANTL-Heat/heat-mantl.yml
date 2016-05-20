@@ -1,0 +1,212 @@
+### Heat Template ###
+#description: Load-balancing of servers from Internet (public network) - To launch the stack, use the following command line -- heat stack-create -f heat-mantl.hot -P server_keypair={SERVER_KEYPAIR} public_net={PUBLIC_NETWORK_ID} {STACK_NAME}
+heat_template_version: 2013-05-23
+
+parameters:
+  public_net:
+    description: External network ID
+    default: e6e51d1b-2e55-49d1-abd2-2203ce56da7a
+    type: string
+  private_network_net:
+    label: Private network address
+    default: 192.168.10.0/24
+    description: Private network address
+    type: string
+  private_network_subnet_low:
+    label: Subnet lower IP range
+    default: 192.168.10.10
+    description: Lower IP address for the private subnet
+    type: string
+  private_network_subnet_high:
+    label: Subnet higher IP range
+    default: 192.168.10.250
+    description: Higher IP address for the private subnet
+    type: string
+  server_flavor:
+    default: Standard
+    description: Flavor of the servers
+    type: string
+  server_image:
+    default: crust-master
+    description: Crust master images used to deploy the rest of Mantl
+    type: string
+  server_keypair:
+    label: Keypair
+    default: mantl
+    description: Please create the keypair before launching this stack
+    type: string
+  router_name:
+    label: Router name
+    description: Router between the private mantl network and the external network
+    default: mantl_router
+    type: string
+
+resources:
+
+# Network properties
+
+  private_network:
+    type: OS::Neutron::Net
+    properties:
+      admin_state_up: true
+      name: mantl
+      shared: false
+
+  private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      allocation_pools:
+      - end: { get_param: private_network_subnet_high }
+        start: { get_param: private_network_subnet_low }
+      cidr: { get_param: private_network_net }
+      dns_nameservers: []
+      enable_dhcp: true
+      host_routes: []
+      ip_version: 4
+      name: mantl-subnet
+      network_id: { get_resource: private_network }
+
+  mantl_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: 'Mantl security group whihc allows all access between nodes by default'
+      name: mantl
+      rules:
+      - direction: egress
+        ethertype: IPv4
+        remote_ip_prefix: 0.0.0.0/0
+      - direction: ingress
+        protocol: icmp
+      - direction: ingress
+        ethertype: IPv4
+        port_range_max: 65535
+        port_range_min: 1
+        protocol: tcp
+      - direction: ingress
+        ethertype: IPv4
+        port_range_max: 65535
+        port_range_min: 1
+        protocol: udp
+
+
+# Router for SourceNAT
+
+  router:
+    type: OS::Neutron::Router
+    properties:
+      name: { get_param: router_name }
+      external_gateway_info: { "enable_snat": true, "network": { get_param: public_net } }
+
+  router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { "Ref" : "router" }
+      subnet_id: { "Ref" : "private_subnet" }
+
+
+# Server nodes properties
+
+  crust_master_port:
+    type: OS::Neutron::Port
+    properties:
+      security_groups: [ { get_resource: mantl_security_group } ]
+      network_id: { get_resource: private_network }
+
+  crust_master_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net }
+
+  crust_master:
+    type: OS::Nova::Server
+    properties:
+      name: crust-master
+      image: { get_param: server_image }
+      flavor: { get_param: server_flavor }
+      key_name: { get_param: server_keypair }
+      networks:
+        - port: { get_resource: crust_master_port }
+      user_data: |
+        #cloud-config
+        runcmd:
+          - echo "This is a test" >> ~/test.txt
+
+  crust_master_floating_ip_association:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: crust_master_floating_ip }
+      port_id: { get_resource: crust_master_port }
+
+
+# Load Balancer properties
+
+  lb_edge_vip_port:
+    type: OS::Neutron::Port
+    properties:
+      security_groups: [{ get_resource: mantl_security_group }]
+      network_id: { get_resource: private_network }
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet }
+
+  lb_edge_vip_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net }
+      port_id: { get_resource: lb_edge_vip_port }
+
+  lb_pool_vip:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: lb_edge_vip_floating_ip }
+      port_id: { get_attr: [ pool_edge, vip, port_id ] }
+
+  pool_edge:
+    type: OS::Neutron::Pool
+    properties:
+      name: mantl_edge_http
+      protocol: HTTP
+      subnet_id: { get_resource: private_subnet }
+      lb_method: ROUND_ROBIN
+      vip:
+        name: mantl_edge_http_vip
+        description: Virtual IP for Mantl Edge hosts
+        protocol_port: 80
+
+  lb_control_vip_port:
+    type: OS::Neutron::Port
+    properties:
+      security_groups: [{ get_resource: mantl_security_group }]
+      network_id: { get_resource: private_network }
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet }
+
+  lb_control_vip_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net }
+      port_id: { get_resource: lb_control_vip_port }
+
+  lb_control_pool_vip:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: lb_control_vip_floating_ip }
+      port_id: { get_attr: [ pool_control, vip, port_id ] }
+
+  pool_control:
+    type: OS::Neutron::Pool
+    properties:
+      name: mantl_control
+      protocol: HTTP
+      subnet_id: { get_resource: private_subnet }
+      lb_method: ROUND_ROBIN
+      vip:
+        name: mantl_control_vip
+        description: Virtual IP for Mantl Control hosts
+        protocol_port: 80
+
+#  lbaas:
+#    type: OS::Neutron::LoadBalancer
+#    properties:
+#      members: [ { get_resource: front_node_1 }, { get_resource: front_node_2 } ]
+#      pool_id: { get_resource: pool }
+#      protocol_port: 80

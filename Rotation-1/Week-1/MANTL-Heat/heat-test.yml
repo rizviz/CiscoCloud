@@ -1,0 +1,23 @@
+heat_template_version: 2014-10-16
+
+description: Simple template to deploy a Docker host running Ubuntu
+
+resources:
+ wordpress_app:
+  type: OS::Heat::ResourceGroup
+  properties:
+    count: 1
+    resource_def:
+      type: OS::Nova::Server
+      properties:
+        image: "ubuntu-docker"
+        flavor: Standard
+        networks:
+          - network: "DevOps Lab"
+        security_groups: ["Allow All"]
+        user_data_format: RAW
+        user_data: |
+         #cloud-config
+         runcmd:
+          - sudo docker run --name mysql -e MYSQL_ROOT_PASSWORD=GDTlabs123 -e MYSQL_DATABASE=wordpress -e MYSQL_USER=wordpress -e MYSQL_PASSWORD=GDTlabs123 -d gremlin961/mysql
+          - sudo docker run --name wordpress --link mysql:mysql -p 8080:80 -d wordpress
