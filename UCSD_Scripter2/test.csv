@@ -1,0 +1,6 @@
+catalogName,vdcName,userID,durationHours,beginTime,quantity,memoryMB,diskGB,cores,estimatedCost,comments,additionalInfo,chargeFrequency
+Create Centos VM,ECS,admin,48,0,1,1000,10,2,10,Hello comments World!,Hello AdditionInfo World!,1
+Create Centos VM,ECS,admin,48,0,1,1000,10,2,10,Hello comments World!,Hello AdditionInfo World!,1
+Create Centos VM,ECS,admin,48,0,1,1000,10,2,10,Hello comments World!,Hello AdditionInfo World!,1
+Create Centos VM,ECS,admin,48,0,1,1000,10,2,10,Hello comments World!,Hello AdditionInfo World!,1
+Create Centos VM,ECS,admin,48,0,1,1000,10,2,10,Hello comments World!,Hello AdditionInfo World!,1
