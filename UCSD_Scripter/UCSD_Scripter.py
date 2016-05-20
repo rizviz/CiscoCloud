@@ -1,3 +1,8 @@
+# Created by: Tim Bramlett
+# For questions: 
+# tim.bramlett@gdt.com OR
+# timothy.bramlett@gmail.com
+
 import csv
 import requests
 import ast
