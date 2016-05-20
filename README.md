@@ -10,7 +10,7 @@ Objectives are to heavily use <b> Automation and Orchestration , Open API's and 
   - Containers & Microservices : Cisco Mantl, Shipped, Cloud Native Development Program 
 
 <b> Cisco  Cloud Solutions: </b>
-  - Cisco One Enterprise Cloud Suite , Prime Service Catalog
+  - Cisco One Enterprise Cloud Suite
   - UCS Director , UCS Manager 
   - Cloud Center ( CliQr)
   
