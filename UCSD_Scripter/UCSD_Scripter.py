@@ -6,6 +6,9 @@ f = open("test.csv", "r")
 csv = csv.reader(f, dialect='excel')
 csv.next() # skips the header
 
+# I simply used this in order to not have to hard-code the token in this script.
+#   I was writing this on a Windows VM and couldn't remember how to script Env Variables
+#   on Windows :)
 with open(".secret.txt") as file:
     somewhatSecret = file.read()
     somewhatSecret = ast.literal_eval(somewhatSecret)
