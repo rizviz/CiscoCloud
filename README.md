@@ -2,14 +2,16 @@
 
 This is the central repository link for the FIRST ever Cisco Cloud , Containers & Microservices Partner Rotation Program. 
 Purpose of this program is to enable and enhance partner Cloud / Application / Containers practice teams so that they are 
-better equiped with the knowledge and toolsets necessary for using and developing cloud native apps. Objectives are to 
-heavily use <b> Automation and Orchestration , Open API's and DevOps Methodologies </b> withing following areas: 
-Cisco Open Source Cloud Solutions: 
+better equiped with the knowledge and toolsets necessary for using and developing & deploying traditional & cloud native apps. 
+Objectives are to heavily use <b> Automation and Orchestration , Open API's and DevOps Methodologies </b> within following areas: 
+
+<b> Cisco Open Source Cloud Solutions: </b>
   - OpenStack : Cisco MetaPod , UCS-OpenStack
   - Containers & Microservices : Cisco Mantl, Shipped, Cloud Native Development Program 
-Cisco  Cloud Solutions: 
-  - Enterprise Cloud Suite 
-  - UCSD , UCSM 
+
+<b> Cisco  Cloud Solutions: </b>
+  - Cisco One Enterprise Cloud Suite , Prime Service Catalog
+  - UCS Director , UCS Manager 
   - Cloud Center ( CliQr)
   
 Program's first alpha run was conducted from May 9-20, 2016
