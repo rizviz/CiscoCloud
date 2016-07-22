@@ -20,5 +20,3 @@ This organized as subfolders for each rotation . e.g. Rotation/Batch 1 of the pr
 - Zeeshan Rizvi
 @zeerizvi
 
-## Contents
-[Becoming a Command Line Commando](Becoming_a_Command_Line_Commando.md)
